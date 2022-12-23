@@ -189,7 +189,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd4b2353f2309bc4e9d0bb34f5725d42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiManager: {fileID: 0}
 --- !u!114 &3773404976027583649
 MonoBehaviour:
   m_ObjectHideFlags: 0

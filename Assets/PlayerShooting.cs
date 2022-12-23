@@ -32,11 +32,16 @@ public class PlayerShooting : MonoBehaviour
         {
             StartShooting();
         }
+        if(isShooting)
+        {
         if (Input.GetKey(KeyCode.Space))
             HandleShotPower();
         if (Input.GetKeyUp(KeyCode.Space))
         {
             TryToKick();
+        }
+        if(Input.GetKeyDown(KeyCode.S))
+            ResetShooting();
         }
     }
     private void StartShooting()
@@ -47,19 +52,25 @@ public class PlayerShooting : MonoBehaviour
     }
     private void HandleShotPower()
     {
-        if (shotPower < 100)
+        if(Input.GetKey(KeyCode.F))
+            shotType = ShotType.CURVED;
+        if(shotPower < 100)
             shotPower += 50 * Time.deltaTime;
         shootingIndicator.UpdateColor(shotPower);
     }
     // TODO: Possibly refractor into PlayerShooting class
     private void TryToKick()
-    {
-        // uiManager.DisableShotSlider();
-        shootingIndicator.Disable();
-        ballController.TryToKick(playerController, shotPower, ShotType.CURVED);
-        shotPower = 10;
+    { 
+        ballController.TryToKick(playerController, shotPower, shotType);
+        ResetShooting();
     }
-
+    private void ResetShooting()
+    {
+        isShooting = false;
+        shootingIndicator.Disable();
+        shotPower = 10;
+        shotType = ShotType.NORMAL;
+    }
     public bool IsShooting()
     {
         return isShooting;

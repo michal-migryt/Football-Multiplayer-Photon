@@ -8,6 +8,10 @@ using TMPro;
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
     public TMP_InputField inputField;
+    public TextMeshProUGUI versionText;
+    private void Start() {
+        versionText.text = "v" + Application.version;
+    }
     public void OnCreateButton()
     {
         PhotonNetwork.CreateRoom(inputField.text);
