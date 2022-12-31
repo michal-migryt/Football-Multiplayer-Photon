@@ -4036,7 +4036,7 @@ MonoBehaviour:
   teamOne: []
   teamTwo: []
   maxGameTime: 600
-  ballPrefab: {fileID: 5623522510446943372, guid: 46879324bf7b2a94c85412c58b89eb4e, type: 3}
+  celebrationTime: 5
   materials: {fileID: 798554844}
 --- !u!4 &1943584385
 Transform:

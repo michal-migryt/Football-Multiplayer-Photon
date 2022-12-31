@@ -20,7 +20,7 @@ public class BallController : MonoBehaviour
     {
         sphereCollider = GetComponent<SphereCollider>();
         rb = GetComponent<Rigidbody>();
-        waitTime = new WaitForSeconds(5f);
+        waitTime = new WaitForSeconds(GameController.instance.celebrationTime);
         photonView = GetComponent<PhotonView>();
         rb.maxAngularVelocity = 100f;
     }

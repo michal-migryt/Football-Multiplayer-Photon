@@ -12,6 +12,7 @@ public class PlayerShooting : MonoBehaviour
     private ShotType shotType = ShotType.NORMAL;
     private ShootingIndicator shootingIndicator;
     private PhotonView _photonView;
+    private KeycodeManager keycodeManager;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,21 +27,21 @@ public class PlayerShooting : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!_photonView.AmOwner)
+        if (!_photonView.AmOwner || keycodeManager == null)
             return;
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(keycodeManager.ShootKeyCode))
         {
             StartShooting();
         }
         if(isShooting)
         {
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(keycodeManager.ShootKeyCode))
             HandleShotPower();
-        if (Input.GetKeyUp(KeyCode.Space))
+        if (Input.GetKeyUp(keycodeManager.ShootKeyCode))
         {
             TryToKick();
         }
-        if(Input.GetKeyDown(KeyCode.S))
+        if(Input.GetKeyDown(keycodeManager.StopShootingKeyCode))
             ResetShooting();
         }
     }
@@ -52,7 +53,7 @@ public class PlayerShooting : MonoBehaviour
     }
     private void HandleShotPower()
     {
-        if(Input.GetKey(KeyCode.F))
+        if(Input.GetKey(keycodeManager.CurveKeyCode))
             shotType = ShotType.CURVED;
         if(shotPower < 100)
             shotPower += 50 * Time.deltaTime;
@@ -74,6 +75,10 @@ public class PlayerShooting : MonoBehaviour
     public bool IsShooting()
     {
         return isShooting;
+    }
+    public void SetKeyCodeManager(KeycodeManager keycodeManager)
+    {
+        this.keycodeManager = keycodeManager;
     }
     
 }

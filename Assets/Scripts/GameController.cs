@@ -7,18 +7,22 @@ using Photon.Realtime;
 
 public class GameController : MonoBehaviourPunCallbacks, IPunObservable
 {
+    
     public int TeamLeftGoals {get;private set;}
     public int TeamRightGoals {get;private set;}
     public List<PlayerController> teamOne = new(), teamTwo = new();
     public int GameTime {get; private set;}
     public bool IsGamePlayed {get; private set;}
-    [SerializeField] private int maxGameTime=600;
+    
     public static GameController instance;
     private UIManager uiManager;
     private CameraManager cameraManager;
-    public float CelebrationTime {get; set;}
+    [Header("Times")]
+    [SerializeField] private int maxGameTime=600;
+    [Tooltip("Time in which scoring team is supposed to celebrate. After that players and ball will be reseted.")]
+    public float celebrationTime;
     private WaitForSeconds uiUpdateTime = new WaitForSeconds(1f);
-    [SerializeField] private GameObject ballPrefab;
+    [Header("")]
     [SerializeField] private Materials materials;
     private PhotonView _photonView;
     private void Awake() {
@@ -98,14 +102,15 @@ public class GameController : MonoBehaviourPunCallbacks, IPunObservable
     public IEnumerator ManageGameTime()
     {
         while(true){
+            if(GameTime >= maxGameTime)
+                break;  
             yield return uiUpdateTime;
             if(IsGamePlayed)
             {
             uiManager.UpdateUI(GameTime, TeamLeftGoals, TeamRightGoals);
             GameTime += 1;
             }
-            if(GameTime >= maxGameTime)
-                break;  
+            
         }
         //Time.timeScale = 0;
     }

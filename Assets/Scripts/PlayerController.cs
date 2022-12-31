@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private PhotonView _photonView;
     private Team myTeam;
     private PlayerShooting playerShooting;
+    private KeycodeManager keycodeManager;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -25,8 +26,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         playerShooting = GetComponent<PlayerShooting>();
         if (_photonView.AmOwner)
             OnSpawn();
+        keycodeManager = KeycodeManager.CreateFromJSON(FileManager.instance.ReadFromPlayerInputFile());
+        playerShooting.SetKeyCodeManager(keycodeManager);
+        
     }
-    // Update is called once per frame
 
     private void FixedUpdate()
     {
@@ -34,6 +37,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         ManageMovement();
     }
+    // Possibly take it to another script like PlayerMovement
     private void ManageMovement()
     {
         if (gameController.IsGamePlayed)
@@ -41,8 +45,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             horizontal = Input.GetAxis("Horizontal") * Time.deltaTime;
             vertical = Input.GetAxis("Vertical") * Time.deltaTime;
             movement = new Vector3(horizontal, 0, vertical) * 1.5f;
-            if (playerShooting.IsShooting())
+            if (playerShooting.IsShooting()){
                 movement *= 0.75f;
+                FileManager.instance.SaveToPlayerInputFile(keycodeManager);}
+                
             rb.AddForce(movement, ForceMode.VelocityChange);
         }
     }
@@ -70,6 +76,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void OnSpawn()
     {
         GameController.instance.OnPlayerSpawn(_photonView.ViewID);
+
     }
 
     public Team GetTeam()
@@ -91,6 +98,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public CapsuleCollider GetCollider()
     {
         return capsuleCollider;
+    }
+    public KeycodeManager GetKeyCodeManager()
+    {
+        return keycodeManager;
     }
 
 }
