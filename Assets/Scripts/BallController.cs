@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public enum ShotType{NORMAL, CURVED, CHIPPED}
+public enum ShotType{NORMAL, CURVED, CHIPPED, FLAT}
 public class BallController : MonoBehaviour
 {
     [SerializeField] private Vector3 defaultPosition;
     [SerializeField] private float shootingDistance;
     [SerializeField] private int shotForceDivider;
+    [SerializeField] private float curveModifier;
     private SphereCollider sphereCollider;
     private Rigidbody rb;
     private bool isInNet = false;
     private WaitForSeconds waitTime;
-    private Vector3 velocity, shotForce;
+    private Vector3 shotForce;
     private PhotonView photonView;
     // Start is called before the first frame update
     void Start()
@@ -34,31 +35,40 @@ public class BallController : MonoBehaviour
         // is in range to shoot
         if(distanceToBall <= shootingDistance)
         {
-            if(shotType == ShotType.NORMAL)
-            {
-            Vector3 tempShotForce = new Vector3(transform.position.x - playerPosition.x, playerPosition.y - transform.position.y, transform.position.z - playerPosition.z);
-            
+            Vector3 tempShotForce = new Vector3((transform.position.x - playerPosition.x), (playerPosition.y - transform.position.y), (transform.position.z - playerPosition.z));
             tempShotForce.Normalize();
             shotForce = tempShotForce*shotPower/shotForceDivider;
-            Debug.Log(shotForce);
-            photonView.RPC("RPC_StrikeBall", RpcTarget.MasterClient, shotForce);
+            
+            if(shotType == ShotType.NORMAL)
+            {
+                photonView.RPC("RPC_StrikeBall", RpcTarget.MasterClient, shotForce);
+                return;
             }
             if(shotType == ShotType.CURVED)
             {
-                Vector3 tempShotForce = new Vector3((transform.position.x - playerPosition.x), (playerPosition.y - transform.position.y), (transform.position.z - playerPosition.z));
-                tempShotForce.Normalize();
-                shotForce = tempShotForce*shotPower/shotForceDivider;
-                Debug.Log(shotForce);
+                shotForce *= 0.7f;
                 photonView.RPC("RPC_CurveBall", RpcTarget.MasterClient, shotForce);
+                return;
+            }
+            if(shotType == ShotType.CHIPPED)
+            {
+                shotForce = new Vector3(shotForce.x * 0.3f, shotForce.y * 2f, shotForce.z * 0.3f);
+                photonView.RPC("RPC_StrikeBall", RpcTarget.MasterClient, shotForce);
+                return;
+            }
+            if(shotType == ShotType.FLAT)
+            {
+                shotForce = new Vector3(shotForce.x, 0, shotForce.z);
+                photonView.RPC("RPC_StrikeBall", RpcTarget.MasterClient, shotForce);
             }
         }
-        
     }
     [PunRPC]
     void RPC_StrikeBall(Vector3 shotForce)
     {
         rb.AddForce(shotForce, ForceMode.VelocityChange);
     }
+    // Scale curve with shotforce
     [PunRPC]
     void RPC_CurveBall(Vector3 shotForce)
     {

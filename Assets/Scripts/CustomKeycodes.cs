@@ -9,6 +9,7 @@ public class CustomKeycodes
     public int curveKeyCode;
     public int chipKeyCode;
     public int stopShootingKeyCode;
+    public int flatKeyCode;
 
     public void UpdateKeyCodes(KeycodeManager keycodeManager)
     {
@@ -16,5 +17,6 @@ public class CustomKeycodes
         curveKeyCode = (int) keycodeManager.CurveKeyCode;
         chipKeyCode = (int) keycodeManager.ChipKeyCode;
         stopShootingKeyCode = (int) keycodeManager.StopShootingKeyCode;
+        flatKeyCode = (int) keycodeManager.FlatKeyCode;
     }
 }

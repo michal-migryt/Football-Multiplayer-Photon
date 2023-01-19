@@ -38,7 +38,7 @@ public class PlayerShooting : MonoBehaviour
         if (isShooting)
         {
             if (Input.GetKey(keycodeManager.ShootKeyCode))
-                HandleShotPower();
+                HandleShot();
             if (Input.GetKeyUp(keycodeManager.ShootKeyCode))
                 TryToKick();
             if (Input.GetKeyDown(keycodeManager.StopShootingKeyCode))
@@ -52,12 +52,14 @@ public class PlayerShooting : MonoBehaviour
         isShooting = true;
     }
 
-    private void HandleShotPower()
+    private void HandleShot()
     {
         if (Input.GetKey(keycodeManager.CurveKeyCode))
             shotType = ShotType.CURVED;
         if (Input.GetKey(keycodeManager.ChipKeyCode))
             shotType = ShotType.CHIPPED;
+        if (Input.GetKey(keycodeManager.FlatKeyCode))
+            shotType = ShotType.FLAT;
         if (shotPower < 100)
             shotPower += 50 * Time.deltaTime;
         shootingIndicator.UpdateColor(shotPower);

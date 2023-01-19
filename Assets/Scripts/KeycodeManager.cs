@@ -10,6 +10,7 @@ public class KeycodeManager
     public KeyCode ShootKeyCode{get;set;}
     public KeyCode CurveKeyCode{get;set;}
     public KeyCode ChipKeyCode{get;set;}
+    public KeyCode FlatKeyCode{get;set;}
     public KeyCode StopShootingKeyCode{get;set;}
 
     public KeycodeManager()
@@ -19,6 +20,7 @@ public class KeycodeManager
         CurveKeyCode = KeyCode.F;
         ChipKeyCode = KeyCode.A;
         StopShootingKeyCode = KeyCode.S;
+        FlatKeyCode = KeyCode.D;
         customKeycodes.UpdateKeyCodes(this);
     }
     public KeycodeManager(CustomKeycodes customKeycodes)
@@ -28,6 +30,7 @@ public class KeycodeManager
         CurveKeyCode = (KeyCode) customKeycodes.curveKeyCode;
         ChipKeyCode = (KeyCode) customKeycodes.chipKeyCode;
         StopShootingKeyCode = (KeyCode) customKeycodes.stopShootingKeyCode;
+        FlatKeyCode = (KeyCode) customKeycodes.flatKeyCode;
     }
     public static KeycodeManager CreateFromJSON(string jsonString){
         if(jsonString != "")
