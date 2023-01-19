@@ -12,14 +12,6 @@ public class KeycodeManager
     public KeyCode ChipKeyCode{get;set;}
     public KeyCode StopShootingKeyCode{get;set;}
 
-    // Start is called before the first frame update
-    // void Start()
-    // {
-    // //    StreamReader streamReader = new StreamReader("Player Inputs");
-    // //    string jsonString = System.IO.File.ReadAllText("Player Inputs");
-    // //    JsonUtility.FromJson(jsonString);
-    // //    KeyCode.
-    // }
     public KeycodeManager()
     {
         customKeycodes = new CustomKeycodes();

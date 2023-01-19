@@ -71,8 +71,8 @@ namespace Photon.Pun
                 {
                     // tr.position = Vector3.MoveTowards(tr.position, this.m_NetworkPosition, this.m_Distance * Time.deltaTime * 2 *PhotonNetwork.SerializationRate);
                     // tr.rotation = Quaternion.RotateTowards(tr.rotation, this.m_NetworkRotation, this.m_Angle * Time.deltaTime * 2* PhotonNetwork.SerializationRate);
-                    tr.position = Vector3.MoveTowards(tr.position, this.m_NetworkPosition, this.m_Distance * (1.0f / PhotonNetwork.SerializationRate / 2f));
-                    tr.rotation = Quaternion.RotateTowards(tr.rotation, this.m_NetworkRotation, this.m_Distance * (1.0f / PhotonNetwork.SerializationRate / 2f));
+                    tr.position = Vector3.MoveTowards(tr.position, this.m_NetworkPosition, this.m_Distance * (1.0f / PhotonNetwork.SerializationRate / 4f));
+                    tr.rotation = Quaternion.RotateTowards(tr.rotation, this.m_NetworkRotation, this.m_Distance * (1.0f / PhotonNetwork.SerializationRate / 4f));
                 }
             }
         }

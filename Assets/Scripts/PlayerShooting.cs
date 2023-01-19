@@ -13,7 +13,7 @@ public class PlayerShooting : MonoBehaviour
     private ShootingIndicator shootingIndicator;
     private PhotonView _photonView;
     private KeycodeManager keycodeManager;
-    // Start is called before the first frame update
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -24,44 +24,47 @@ public class PlayerShooting : MonoBehaviour
         shootingIndicator.Init();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (!_photonView.AmOwner || keycodeManager == null)
             return;
+        ManageShooting();
+    }
+
+    private void ManageShooting()
+    {
         if (Input.GetKeyDown(keycodeManager.ShootKeyCode))
-        {
             StartShooting();
-        }
-        if(isShooting)
+        if (isShooting)
         {
-        if (Input.GetKey(keycodeManager.ShootKeyCode))
-            HandleShotPower();
-        if (Input.GetKeyUp(keycodeManager.ShootKeyCode))
-        {
-            TryToKick();
-        }
-        if(Input.GetKeyDown(keycodeManager.StopShootingKeyCode))
-            ResetShooting();
+            if (Input.GetKey(keycodeManager.ShootKeyCode))
+                HandleShotPower();
+            if (Input.GetKeyUp(keycodeManager.ShootKeyCode))
+                TryToKick();
+            if (Input.GetKeyDown(keycodeManager.StopShootingKeyCode))
+                ResetShooting();
         }
     }
+
     private void StartShooting()
     {
-        // uiManager.EnableShotSlider(transform.position);
         shootingIndicator.Enable();
         isShooting = true;
     }
+
     private void HandleShotPower()
     {
-        if(Input.GetKey(keycodeManager.CurveKeyCode))
+        if (Input.GetKey(keycodeManager.CurveKeyCode))
             shotType = ShotType.CURVED;
-        if(shotPower < 100)
+        if (Input.GetKey(keycodeManager.ChipKeyCode))
+            shotType = ShotType.CHIPPED;
+        if (shotPower < 100)
             shotPower += 50 * Time.deltaTime;
         shootingIndicator.UpdateColor(shotPower);
     }
-    // TODO: Possibly refractor into PlayerShooting class
+
     private void TryToKick()
-    { 
+    {
         ballController.TryToKick(playerController, shotPower, shotType);
         ResetShooting();
     }
@@ -80,5 +83,5 @@ public class PlayerShooting : MonoBehaviour
     {
         this.keycodeManager = keycodeManager;
     }
-    
+
 }
