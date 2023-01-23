@@ -26,13 +26,14 @@ public class PlayerShooting : MonoBehaviour
 
     void Update()
     {
-        if (!_photonView.AmOwner || keycodeManager == null)
-            return;
+        
         ManageShooting();
     }
 
-    private void ManageShooting()
+    public void ManageShooting()
     {
+        if (keycodeManager == null)
+            return;
         if (Input.GetKeyDown(keycodeManager.ShootKeyCode))
             StartShooting();
         if (isShooting)

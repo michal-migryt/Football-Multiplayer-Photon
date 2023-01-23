@@ -9,21 +9,11 @@ public class UIManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] private TextMeshProUGUI timerText, scoreLineText;
     [SerializeField] private Button startButton;
-    [SerializeField] private GameObject waitPanel, menuPanel;
+    [SerializeField] private GameObject waitPanel, menuPanel, settingsPanel;
     [SerializeField] private Camera uiCamera;
     [SerializeField] private RectTransform canvas;
     private Camera mainCamera;
-    public static UIManager instance;
-    private void Awake() {
-        if (instance != null)
-        {
-            Destroy(this);
-        }
-        else
-        {
-            instance = this;
-        }
-    }
+
     public void SetupUI()
     {
         timerText.text = "00:00";
@@ -71,8 +61,34 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         menuPanel.SetActive(!menuPanel.activeSelf);
     }
+    // when player gets Escape key down
+    public void OnEscapeInput()
+    {
+        if(settingsPanel.activeSelf)
+        {
+            settingsPanel.SetActive(false);
+            SettingsManager.instance.OnExitSettings();
+            menuPanel.SetActive(true);
+            return;
+        }
+        if(menuPanel.activeSelf)
+            menuPanel.SetActive(false);
+        else
+            menuPanel.SetActive(true);
+        
+    }
+    public void OnSettingsButton()
+    {
+        settingsPanel.SetActive(true);
+        menuPanel.SetActive(false);
+        SettingsManager.instance.OnOpenSettings();
+    }
     public void OnExitGame()
     {
         Application.Quit();
+    }
+    public bool IsMenuOpen()
+    {
+        return menuPanel.activeSelf || settingsPanel.activeSelf;
     }
 }

@@ -26,7 +26,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         playerShooting = GetComponent<PlayerShooting>();
         if (_photonView.AmOwner)
             OnSpawn();
-        keycodeManager = KeycodeManager.CreateFromJSON(FileManager.instance.ReadFromPlayerInputFile());
+        // keycodeManager = KeycodeManager.CreateFromJSON(FileManager.instance.ReadFromPlayerInputFile());
+        keycodeManager = SettingsManager.instance.GetKeycodeManager();
         playerShooting.SetKeyCodeManager(keycodeManager);
         
     }
@@ -36,18 +37,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (!_photonView.AmOwner)
             return;
         ManageMovement();
+        playerShooting.ManageShooting();
     }
     // Possibly take it to another script like PlayerMovement
     private void ManageMovement()
     {
-        if (gameController.IsGamePlayed)
+        if (gameController.IsGamePlayed && !gameController.IsMenuOpen())
         {
             horizontal = Input.GetAxis("Horizontal") * Time.deltaTime;
             vertical = Input.GetAxis("Vertical") * Time.deltaTime;
             movement = new Vector3(horizontal, 0, vertical) * 1.5f;
             if (playerShooting.IsShooting()){
                 movement *= 0.75f;
-                FileManager.instance.SaveToPlayerInputFile(keycodeManager);}
+                }
                 
             rb.AddForce(movement, ForceMode.VelocityChange);
         }

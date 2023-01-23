@@ -37,7 +37,6 @@ public class GameController : MonoBehaviourPunCallbacks, IPunObservable
     }
     void Start()
     {
-        
         StartCoroutine(ManageGameTime());
         cameraManager = FindObjectOfType<CameraManager>();
         _photonView = GetComponent<PhotonView>();
@@ -59,7 +58,7 @@ public class GameController : MonoBehaviourPunCallbacks, IPunObservable
     {
         cameraManager.FollowBall();
         if(Input.GetKeyDown(KeyCode.Escape))
-            uiManager.ChangeMenuVisibility();
+            uiManager.OnEscapeInput();
     }
 
     void InitializeGame()
@@ -192,7 +191,10 @@ public class GameController : MonoBehaviourPunCallbacks, IPunObservable
     {
         photonView.RPC("RPC_PlayerLeft", RpcTarget.AllBuffered, viewId);
     }
-    
+    public bool IsMenuOpen()
+    {
+        return uiManager.IsMenuOpen();
+    }
     [PunRPC]
     public void RPC_PlayerLeft(int viewId)
     {

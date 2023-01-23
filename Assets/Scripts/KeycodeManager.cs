@@ -26,6 +26,10 @@ public class KeycodeManager
     public KeycodeManager(CustomKeycodes customKeycodes)
     {
         this.customKeycodes = customKeycodes;
+        UpdateKeyCodes(customKeycodes);
+    }
+    public void UpdateKeyCodes(CustomKeycodes customKeycodes)
+    {
         ShootKeyCode = (KeyCode) customKeycodes.shootKeyCode;
         CurveKeyCode = (KeyCode) customKeycodes.curveKeyCode;
         ChipKeyCode = (KeyCode) customKeycodes.chipKeyCode;
@@ -38,7 +42,12 @@ public class KeycodeManager
         else
         return new KeycodeManager();
     }
+    public CustomKeycodes GetCustomKeycodes()
+    {
+        return customKeycodes;
+    }
     public string ToJSON(){
+        customKeycodes.UpdateKeyCodes(this);
         return JsonUtility.ToJson(customKeycodes);
     }
 }

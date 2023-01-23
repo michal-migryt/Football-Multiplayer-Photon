@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 public class PlayerSpawner : MonoBehaviour
 {
+    [Tooltip("Player gameobject, that he will be controlling.")]
     [SerializeField] private GameObject playerPrefab;
     void Start()
     {
