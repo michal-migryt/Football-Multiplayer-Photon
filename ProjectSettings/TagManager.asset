@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - Net
+  - Bar
   layers:
   - Default
   - TransparentFX

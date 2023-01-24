@@ -16,18 +16,22 @@ public class BallController : MonoBehaviour
     private WaitForSeconds waitTime;
     private Vector3 shotForce;
     private PhotonView photonView;
-    private AudioSource audioSource;
+    [SerializeField] private AudioSource kickAudioSource, hitBarAudioSource;
     // Start is called before the first frame update
-    void Start()
-    {
+    private void Awake() {
         sphereCollider = GetComponent<SphereCollider>();
         rb = GetComponent<Rigidbody>();
-        waitTime = new WaitForSeconds(GameController.instance.celebrationTime);
+        
         photonView = GetComponent<PhotonView>();
         rb.maxAngularVelocity = 100f;
-        audioSource = GetComponent<AudioSource>();
+        kickAudioSource = GetComponent<AudioSource>();
+        
+    }
+    void Start()
+    {
         UpdateAudioSource();
         SettingsManager.instance.updateSettingsDelegate += UpdateAudioSource;
+        waitTime = new WaitForSeconds(GameController.instance.celebrationTime);
     }
 
     public void TryToKick(PlayerController playerController, float shotPower, ShotType shotType)
@@ -70,13 +74,15 @@ public class BallController : MonoBehaviour
     private void UpdateAudioSource()
     {
         // divided by 100 because volume is measured in int 0-100, while AudioSource volume is measured in float 0-1
-        audioSource.volume = SettingsManager.instance.volume/100f;
+        float volume = SettingsManager.instance.volume/100f;
+        kickAudioSource.volume = volume;
+        hitBarAudioSource.volume = volume;
     }
     [PunRPC]
     void RPC_StrikeBall(Vector3 shotForce)
     {
         rb.AddForce(shotForce, ForceMode.VelocityChange);
-        audioSource.Play();
+        kickAudioSource.Play();
     }
     // Scale curve with shotforce
     [PunRPC]
@@ -85,7 +91,7 @@ public class BallController : MonoBehaviour
         float curveX = shotForce.z > 0 ? -100 : 100;
         rb.AddForce(shotForce, ForceMode.VelocityChange);
         rb.AddTorque(new Vector3(curveX, 0, 0), ForceMode.VelocityChange);
-        audioSource.Play();
+        kickAudioSource.Play();
     }
     private void OnTriggerEnter(Collider other) {
         if(photonView.AmOwner)
@@ -100,17 +106,20 @@ public class BallController : MonoBehaviour
     }
     private void OnCollisionEnter(Collision other) {
          if(photonView.AmOwner){
-        if (other.gameObject.tag == "Wall")
+        if (other.gameObject.tag.Equals("Wall"))
                 {
                     //Vector3 collisionPoint = other.contacts[0].point;
                     Vector3 normal = other.GetContact(0).normal;
                     rb.velocity =  Vector3.Reflect(rb.velocity, normal);
                 }
-        if(other.gameObject.tag == "Net")
+        if(other.gameObject.tag.Equals("Net"))
         {
                 //rb.velocity = Vector3.zero;
-                rb.velocity = rb.velocity/shotForceDivider;
-            
+                rb.velocity /= 95;
+        }
+        if(other.gameObject.tag.Equals("Bar"))
+        {
+            hitBarAudioSource.Play();
         }
          }
     }

@@ -9,6 +9,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 {
     public TMP_InputField inputField;
     public TextMeshProUGUI versionText;
+    public GameObject credits;
     private void Start() {
         versionText.text = "v" + Application.version;
     }
@@ -32,6 +33,17 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
 
     }
+    public void OpenCredits()
+    {
+        credits.SetActive(true);
+    }
 
-    
+    public void CloseCredits()
+    {
+        credits.SetActive(false);
+    }
+    public void OnExitButton()
+    {
+        Application.Quit();
+    }
 }
