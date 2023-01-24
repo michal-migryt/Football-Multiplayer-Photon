@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void FixedUpdate()
     {
-        if (!_photonView.AmOwner)
+        if (!_photonView.AmOwner || gameController.IsMenuOpen() || !gameController.IsGamePlayed)
             return;
         ManageMovement();
         playerShooting.ManageShooting();
@@ -42,8 +42,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     // Possibly take it to another script like PlayerMovement
     private void ManageMovement()
     {
-        if (gameController.IsGamePlayed && !gameController.IsMenuOpen())
-        {
+
             horizontal = Input.GetAxis("Horizontal") * Time.deltaTime;
             vertical = Input.GetAxis("Vertical") * Time.deltaTime;
             movement = new Vector3(horizontal, 0, vertical) * 1.5f;
@@ -52,7 +51,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 }
                 
             rb.AddForce(movement, ForceMode.VelocityChange);
-        }
     }
     public void ResetPlayerPosition()
     {

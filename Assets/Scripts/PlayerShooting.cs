@@ -32,7 +32,7 @@ public class PlayerShooting : MonoBehaviour
 
     public void ManageShooting()
     {
-        if (keycodeManager == null)
+        if (keycodeManager == null || !_photonView.IsMine)
             return;
         if (Input.GetKeyDown(keycodeManager.ShootKeyCode))
             StartShooting();

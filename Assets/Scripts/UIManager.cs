@@ -64,7 +64,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     // when player gets Escape key down
     public void OnEscapeInput()
     {
-        if(settingsPanel.activeSelf)
+        Debug.Log(SettingsManager.instance.CanBeClosed());
+        if(settingsPanel.activeSelf && SettingsManager.instance.CanBeClosed())
         {
             settingsPanel.SetActive(false);
             SettingsManager.instance.OnExitSettings();

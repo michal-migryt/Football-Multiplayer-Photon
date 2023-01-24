@@ -7,20 +7,8 @@ public class Settings
 {
     public int volume;
     public int brightness;
-    public int width;
-    public int height;
-    Resolution resolution;
-    // Start is called before the first frame update
-    void Start()
-    {
-        // resolution = new Resolution();
-        // AudioListener.vo
+    public Settings(int volume, int brightness){
+        this.volume = volume;
+        this.brightness = brightness;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    
 }

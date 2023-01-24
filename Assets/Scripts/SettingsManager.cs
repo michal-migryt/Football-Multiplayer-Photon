@@ -1,3 +1,4 @@
+using System.IO;
 using System;
 using System.Security.Cryptography;
 using System.Collections;
@@ -17,15 +18,15 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private Button shootButton, flatButton, curveButton, chippedButton, stopButton;
     ButtonType chosenButtonType = ButtonType.NONE;
     private Button chosenButton;
-    [SerializeField]private int animationTime;
+    [SerializeField]private int animationTime, defaultBrightness, defaultVolume;
+    public Settings settings;
     public int brightness{get;set;}
     public int volume{get;set;}
-    // TODO: stop character from moving when settings are open, maybe do it also when menu is open
     public bool isChangingSettings{get;set;}
     //TODO: possibly check if user made change and make a popup appear if he will try to exit settings without applying
     private bool isMappingKey = false, applied = false, madeChanges = false;
     private int brightnessCopy, volumeCopy;
-    private WaitForSeconds waitForSeconds = new WaitForSeconds(0.25f);
+    private WaitForSeconds waitForSeconds = new WaitForSeconds(0.01f);
 
     private void Awake()
     {
@@ -40,29 +41,58 @@ public class SettingsManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        brightnessSlider.onValueChanged.AddListener(UpdateBrightness);
-        volumeSlider.onValueChanged.AddListener(UpdateVolume);
-        keycodeManager = KeycodeManager.CreateFromJSON(FileManager.instance.ReadFromPlayerInputFile());
-        
-        InitializeButtons();
+        ReadFiles();
+        InitializeSettings();
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(isMappingKey);
         if (!isMappingKey)
             return;
+        TryToGetKey();
+    }
+
+    private void TryToGetKey()
+    {
         foreach (KeyCode keyCode in Enum.GetValues(typeof(KeyCode)))
         {
-            if (Input.GetKey(keyCode))
+            if (Input.GetKeyDown(keyCode))
             {
-                Debug.Log("happened");
+                if(keyCode == KeyCode.Escape)
+                {
+                    StartCoroutine(DelayForEscape());
+                    break;
+                }
                 MapButton(keyCode);
             }
         }
     }
-    private void InitializeButtons()
+    private void ReadFiles()
     {
+        
+        keycodeManager = KeycodeManager.CreateFromJSON(FileManager.instance.ReadFromPlayerInputFile());
+        FileManager.instance.SaveToPlayerInputFile(keycodeManager);
+        string settingsJsonString = FileManager.instance.ReadFromSettingsFile();
+        if(settingsJsonString != "")
+            settings = JsonUtility.FromJson<Settings>(settingsJsonString);
+        else
+            settings = new Settings(defaultVolume, defaultBrightness);
+        volume = settings.volume;
+        brightness = settings.brightness;
+    }
+    private void SaveFiles()
+    {
+        FileManager.instance.SaveToPlayerInputFile(keycodeManager);
+        FileManager.instance.SaveToSettingsFile(settings);
+    }
+    private void InitializeSettings()
+    {
+        brightnessSlider.value = brightness;
+        brightnessSlider.onValueChanged.AddListener(UpdateBrightness);
+        volumeSlider.value = volume;
+        volumeSlider.onValueChanged.AddListener(UpdateVolume);
         shootButton.onClick.AddListener(() => {SelectButton(shootButton, ButtonType.SHOOT);});
         shootButton.GetComponentInChildren<TextMeshProUGUI>().text = keycodeManager.ShootKeyCode.ToString();
         flatButton.onClick.AddListener(() => {SelectButton(flatButton, ButtonType.FLAT);});
@@ -82,35 +112,52 @@ public class SettingsManager : MonoBehaviour
         chippedButton.GetComponentInChildren<TextMeshProUGUI>().text = keycodeManager.ChipKeyCode.ToString();
         stopButton.GetComponentInChildren<TextMeshProUGUI>().text = keycodeManager.StopShootingKeyCode.ToString();
     }
+    private void UpdateSliders()
+    {
+        brightnessSlider.value = brightness;
+        volumeSlider.value = volume;
+    }
     private void MapButton(KeyCode keyCode)
     {
+        KeyCode oldKeycode;
         switch(chosenButtonType){
 
             case ButtonType.SHOOT:
+            oldKeycode = keycodeManager.ShootKeyCode;
             keycodeManager.ShootKeyCode = keyCode;
             shootButton.GetComponentInChildren<TextMeshProUGUI>().text = keyCode.ToString();
             break;
 
             case ButtonType.FLAT:
+            oldKeycode = keycodeManager.FlatKeyCode;
             keycodeManager.FlatKeyCode = keyCode;
             flatButton.GetComponentInChildren<TextMeshProUGUI>().text = keyCode.ToString();
             break;
 
             case ButtonType.CURVE:
+            oldKeycode =  keycodeManager.CurveKeyCode;
             keycodeManager.CurveKeyCode = keyCode;
             curveButton.GetComponentInChildren<TextMeshProUGUI>().text = keyCode.ToString();
             break;
 
             case ButtonType.CHIP:
+            oldKeycode = keycodeManager.ChipKeyCode;
             keycodeManager.ChipKeyCode = keyCode;
             chippedButton.GetComponentInChildren<TextMeshProUGUI>().text = keyCode.ToString();
             break;
 
             case ButtonType.STOP:
+            oldKeycode = keycodeManager.StopShootingKeyCode;
             keycodeManager.StopShootingKeyCode = keyCode;
             stopButton.GetComponentInChildren<TextMeshProUGUI>().text = keyCode.ToString();
             break;
+            
+            default:
+            oldKeycode = KeyCode.None;
+            break;
         }
+        if(oldKeycode != keyCode)
+            madeChanges = true;
         isMappingKey = false;
     }
     public void OnRevertSettings()
@@ -119,6 +166,7 @@ public class SettingsManager : MonoBehaviour
         UpdateButtons();
         brightness = brightnessCopy;
         volume = volumeCopy;
+        UpdateSliders();
     }
     public KeycodeManager GetKeycodeManager()
     {
@@ -127,7 +175,10 @@ public class SettingsManager : MonoBehaviour
     public void OnApplyButton()
     {
         applied = true;
-        FileManager.instance.SaveToPlayerInputFile(keycodeManager);
+        settings.brightness = brightness;
+        settings.volume = volume;
+        
+        SaveFiles();
     }
 
     public void OnExitSettings()
@@ -148,10 +199,12 @@ public class SettingsManager : MonoBehaviour
     }
     public void UpdateBrightness(float value)
     {
+        madeChanges = true;
         brightness = (int)value * 100;
     }
     public void UpdateVolume(float value)
     {
+        madeChanges = true;
         volume = (int)value * 100;
     }
     private void ResetButton()
@@ -160,6 +213,7 @@ public class SettingsManager : MonoBehaviour
         ColorBlock colorBlock = chosenButton.colors;
         colorBlock.normalColor = Color.white;
         colorBlock.selectedColor = Color.white;
+        chosenButton.colors = colorBlock;
         chosenButton = null;
         chosenButtonType = ButtonType.NONE;
     }
@@ -173,7 +227,7 @@ public class SettingsManager : MonoBehaviour
     }
     private IEnumerator PlayAnimation()
     {
-        Debug.Log(chosenButton.gameObject.name);
+        // Debug.Log(chosenButton.gameObject.name);
         ColorBlock colorBlock = chosenButton.colors;
         // colorBlock.normalColor = Color.black;
         chosenButton.colors = colorBlock;
@@ -181,15 +235,22 @@ public class SettingsManager : MonoBehaviour
         yield return waitForSeconds;
         while (isMappingKey)
         {
-            Debug.Log(chosenButton.gameObject.name);
-            colorBlock.normalColor = new Color(colorBlock.normalColor.r, colorBlock.normalColor.g + direction, colorBlock.normalColor.b + direction);
-            colorBlock.selectedColor = new Color(colorBlock.selectedColor.r, colorBlock.selectedColor.g + direction, colorBlock.selectedColor.b + direction);
-            Debug.Log(colorBlock.selectedColor);
+            colorBlock.normalColor = new Color(colorBlock.normalColor.r, colorBlock.normalColor.g + direction/127f, colorBlock.normalColor.b + direction/127f);
+            colorBlock.selectedColor = new Color(colorBlock.selectedColor.r, colorBlock.selectedColor.g + direction/127f, colorBlock.selectedColor.b + direction/127f);
             chosenButton.colors = colorBlock;
-            if (colorBlock.selectedColor.g <= 200f || colorBlock.selectedColor.g >= 254)
+            if (colorBlock.selectedColor.g <= 0.6f || colorBlock.selectedColor.g >= 0.999f)
                 direction = -direction;
             yield return waitForSeconds;
         }
         ResetButton();
+    }
+    private IEnumerator DelayForEscape()
+    {
+        yield return waitForSeconds;
+        isMappingKey = false;
+    }
+    public bool CanBeClosed()
+    {
+        return !isMappingKey;
     }
 }

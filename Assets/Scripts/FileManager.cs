@@ -18,16 +18,25 @@ public class FileManager : MonoBehaviour
             instance = this;
         DontDestroyOnLoad(this);
     }
-    public string ReadFromPlayerInputFile(){
+    public string ReadFromPlayerInputFile()
+    {
         return ReadFromFile(playerInputPath);
     }
-    
-    public void SaveToPlayerInputFile(KeycodeManager keycodeManager){
+    public string ReadFromSettingsFile()
+    {
+        return ReadFromFile(settingsPath);
+    }
+    public void SaveToPlayerInputFile(KeycodeManager keycodeManager)
+    {
         SaveToFile(playerInputPath, keycodeManager.ToJSON());
+    }
+    public void SaveToSettingsFile(Settings settings)
+    {
+        SaveToFile(settingsPath, JsonUtility.ToJson(settings));
     }
     private string ReadFromFile(string path){
         try{
-        string jsonString = System.IO.File.ReadAllText(Application.dataPath + path);
+        string jsonString = System.IO.File.ReadAllText(Application.persistentDataPath + path);
         return jsonString;
         }catch(Exception e){
             // if some kind of exception is thrown return empty string so keycodeManager will know that it won't be using inputs from file
@@ -38,7 +47,7 @@ public class FileManager : MonoBehaviour
     private void SaveToFile(string path, string textToSave){
         try{
         Debug.Log(textToSave);
-        System.IO.File.WriteAllText(Application.dataPath + path, textToSave);
+        System.IO.File.WriteAllText(Application.persistentDataPath + path, textToSave);
         }catch(Exception e){
             Debug.Log(e.Message);
         }
