@@ -16,6 +16,7 @@ public class BallController : MonoBehaviour
     private WaitForSeconds waitTime;
     private Vector3 shotForce;
     private PhotonView photonView;
+    private AudioSource audioSource;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,6 +25,9 @@ public class BallController : MonoBehaviour
         waitTime = new WaitForSeconds(GameController.instance.celebrationTime);
         photonView = GetComponent<PhotonView>();
         rb.maxAngularVelocity = 100f;
+        audioSource = GetComponent<AudioSource>();
+        UpdateAudioSource();
+        SettingsManager.instance.updateSettingsDelegate += UpdateAudioSource;
     }
 
     public void TryToKick(PlayerController playerController, float shotPower, ShotType shotType)
@@ -63,10 +67,16 @@ public class BallController : MonoBehaviour
             }
         }
     }
+    private void UpdateAudioSource()
+    {
+        // divided by 100 because volume is measured in int 0-100, while AudioSource volume is measured in float 0-1
+        audioSource.volume = SettingsManager.instance.volume/100f;
+    }
     [PunRPC]
     void RPC_StrikeBall(Vector3 shotForce)
     {
         rb.AddForce(shotForce, ForceMode.VelocityChange);
+        audioSource.Play();
     }
     // Scale curve with shotforce
     [PunRPC]
@@ -75,6 +85,7 @@ public class BallController : MonoBehaviour
         float curveX = shotForce.z > 0 ? -100 : 100;
         rb.AddForce(shotForce, ForceMode.VelocityChange);
         rb.AddTorque(new Vector3(curveX, 0, 0), ForceMode.VelocityChange);
+        audioSource.Play();
     }
     private void OnTriggerEnter(Collider other) {
         if(photonView.AmOwner)

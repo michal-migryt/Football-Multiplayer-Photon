@@ -23,6 +23,8 @@ public class SettingsManager : MonoBehaviour
     public int brightness{get;set;}
     public int volume{get;set;}
     public bool isChangingSettings{get;set;}
+    public delegate void UpdateSettingsDelegate();
+    public UpdateSettingsDelegate updateSettingsDelegate;
     //TODO: possibly check if user made change and make a popup appear if he will try to exit settings without applying
     private bool isMappingKey = false, applied = false, madeChanges = false;
     private int brightnessCopy, volumeCopy;
@@ -43,6 +45,7 @@ public class SettingsManager : MonoBehaviour
     {
         ReadFiles();
         InitializeSettings();
+        updateSettingsDelegate.Invoke();
     }
 
     // Update is called once per frame
@@ -167,6 +170,7 @@ public class SettingsManager : MonoBehaviour
         brightness = brightnessCopy;
         volume = volumeCopy;
         UpdateSliders();
+        updateSettingsDelegate.Invoke();
     }
     public KeycodeManager GetKeycodeManager()
     {
@@ -200,12 +204,14 @@ public class SettingsManager : MonoBehaviour
     public void UpdateBrightness(float value)
     {
         madeChanges = true;
-        brightness = (int)value * 100;
+        brightness = (int)value;
+        updateSettingsDelegate.Invoke();
     }
     public void UpdateVolume(float value)
     {
         madeChanges = true;
-        volume = (int)value * 100;
+        volume = (int)value;
+        updateSettingsDelegate.Invoke();
     }
     private void ResetButton()
     {
